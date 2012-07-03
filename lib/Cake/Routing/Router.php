@@ -49,6 +49,13 @@ class Router {
 	public static $routes = array();
 
 /**
+ * Have routes been loaded
+ *
+ * @var boolean
+ */
+	public static $initialized = false;
+
+/**
  * List of action prefixes used in connected routes.
  * Includes admin prefix
  *
@@ -281,6 +288,8 @@ class Router {
  * @throws RouterException
  */
 	public static function connect($route, $defaults = array(), $options = array()) {
+		self::$initialized = true;
+
 		foreach (self::$_prefixes as $prefix) {
 			if (isset($defaults[$prefix])) {
 				if ($defaults[$prefix]) {
@@ -512,6 +521,10 @@ class Router {
  * @return array Parsed elements from URL
  */
 	public static function parse($url) {
+		if (!self::$initialized) {
+			self::_loadRoutes();
+		}
+
 		$ext = null;
 		$out = array();
 
@@ -740,6 +753,10 @@ class Router {
  * @return string Full translated URL with base path.
  */
 	public static function url($url = null, $full = false) {
+		if (!self::$initialized) {
+			self::_loadRoutes();
+		}
+
 		$params = array('plugin' => null, 'controller' => null, 'action' => 'index');
 
 		if (is_bool($full)) {
@@ -1114,6 +1131,10 @@ class Router {
  * @return array Array of extensions Router is configured to parse.
  */
 	public static function extensions() {
+		if (!self::$initialized) {
+			self::_loadRoutes();
+		}
+
 		return self::$_validExtensions;
 	}
 
@@ -1133,6 +1154,16 @@ class Router {
 			return self::$_validExtensions = $extensions;
 		}
 		return self::$_validExtensions = array_merge(self::$_validExtensions, $extensions);
+	}
+
+/**
+ * Loads route configuration
+ *
+ * @return void
+ */
+	protected function _loadRoutes() {
+		self::$initialized = true;
+		include APP . 'Config' . DS . 'routes.php';
 	}
 
 }
