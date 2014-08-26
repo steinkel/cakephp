@@ -226,6 +226,28 @@ class TestTaskTest extends TestCase {
  *
  * @return void
  */
+	public function testFixtureArrayGenerationFromModelDontAddCustomAssociations() {
+		$subject = new ArticlesTable();
+		$subject->belongsTo('CustomAuthor', [
+			'className' => 'Authors',
+		]);
+
+
+		$result = $this->Task->generateFixtureList($subject);
+		$expected = [
+			'app.article',
+			'app.author',
+			'app.tag',
+			'app.articles_tag'
+		];
+		$this->assertEquals($expected, $result);
+	}
+
+/**
+ * test that the generation of fixtures works correctly.
+ *
+ * @return void
+ */
 	public function testFixtureArrayGenerationFromController() {
 		$subject = new PostsController(new Request(), new Response());
 		$result = $this->Task->generateFixtureList($subject);
